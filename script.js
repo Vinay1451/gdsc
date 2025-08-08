@@ -48,17 +48,98 @@ class TypeWriter {
     }
 }
 
+class QuoteRotator {
+    constructor(element, quotes, wait = 5000) {
+        this.element = element;
+        this.quotes = quotes;
+        this.wait = wait;
+        this.current = 0;
+        this.rotate();
+    }
+
+    rotate() {
+        this.element.style.opacity = '0';
+        setTimeout(() => {
+            this.element.textContent = this.quotes[this.current];
+            this.element.style.opacity = '1';
+            this.current = (this.current + 1) % this.quotes.length;
+        }, 500);
+        setTimeout(() => this.rotate(), this.wait);
+    }
+}
+
+class SkillsAnimator {
+    constructor() {
+        this.observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('skill-animate');
+                    }
+                });
+            },
+            { threshold: 0.5 }
+        );
+
+        this.initializeSkillCards();
+        this.initializeTickerContent();
+    }
+
+    initializeSkillCards() {
+        const cards = document.querySelectorAll('.skill-card');
+        cards.forEach((card, index) => {
+            // Add initial state class
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            card.style.transitionDelay = `${index * 0.1}s`;
+            
+            // Observe the card
+            this.observer.observe(card);
+        });
+    }
+
+    initializeTickerContent() {
+        const ticker = document.querySelector('.ticker');
+        const content = document.querySelector('.ticker-content');
+        
+        // Clone the content for seamless looping
+        const clone = content.cloneNode(true);
+        ticker.appendChild(clone);
+        
+        // Calculate the required width and set it
+        const contentWidth = content.offsetWidth;
+        ticker.style.width = `${contentWidth * 2}px`;
+    }
+}
+
 // Init on DOM Load
 document.addEventListener('DOMContentLoaded', init);
 
 function init() {
+    // Initialize header typing effect
     const element = document.getElementById('typing-text');
     const words = [
-        'CSE Student',
+        'ECE Student',
         'Web Developer',
-        'AI Enthusiast'
+        'AI Enthusiast',
+        'Cloud Engineer'
     ];
-    
-    // Initialize TypeWriter
     new TypeWriter(element, words);
+
+    // Initialize about section intro
+    const aboutIntro = document.getElementById('about-intro');
+    aboutIntro.textContent = "Hi, I'm Samsung, a 3rd Year ECE student passionate about AI and Cloud(AWS & GCP).";
+
+    // Initialize quote rotator
+    const quoteElement = document.getElementById('rotating-quote');
+    const quotes = [
+        '"The only way to do great work is to love what you do." - Samsung',
+        '"Innovation distinguishes between a leader and a follower." - Samsung',
+        '"Learning never exhausts the mind." - Leonardo da Vinci'
+    ];
+    new QuoteRotator(quoteElement, quotes);
+
+    // Initialize skills animations
+    new SkillsAnimator();
 }
